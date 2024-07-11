@@ -1,0 +1,43 @@
+from rest_framework import serializers
+from .models import Facility, Facility_Image, Facility_Booking, Amenity
+
+class AmenitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Amenity
+        fields = ["name"]
+    
+class FacilityImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Facility_Image
+        fields = ["uuid", "facility", "image", "is_primary"]
+
+class FacilitySerializer(serializers.ModelSerializer):
+    # amenities= serializers.SerializerMethodField()
+    images = FacilityImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Facility
+        fields = ['uuid', 'owner', 'name', 'description', 'city', 'location_link', 'price_per_day', 'created_at', 'updated_at', 'amenities', 'images']
+        extra_kwargs = {"created_at": {"read_only": True}, "updated_at": {"read_only": True}}
+
+    
+class FacilityBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Facility_Booking
+        fields = ["uuid", "facility", "booker", "start_date", "end_date", "duration", "notes", "is_approved", "is_paid"]
+        extra_kwargs = {"id": {"read_only": True}, "duration": {"read_only": True}, "is_approved": {"read_only": True},  "is_paid": {"read_only": True}}
+
+    def validate(self, data):
+        instance = Facility_Booking(**data)
+        instance.clean()
+        return data
+    
+    def validate_start_date(self, value):
+        if value is None:
+            raise serializers.ValidationError("Start date must be provided.")
+        return value
+
+    def validate_duration(self, value):
+        if value is None:
+            raise serializers.ValidationError("Duration must be provided.")
+        return value

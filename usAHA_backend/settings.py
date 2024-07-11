@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'user_profile',
+    'facility_rental',
 ]
 
 MIDDLEWARE = [
@@ -78,16 +79,34 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hacketek_backend.wsgi.application'
+WSGI_APPLICATION = 'usAHA_backend.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#   'default': {
+#     'ENGINE': 'django.db.backends.postgresql',
+#     'NAME': os.getenv('PGDATABASE'),
+#     'USER': os.getenv('PGUSER'),
+#     'PASSWORD': os.getenv('PGPASSWORD'),
+#     'HOST': os.getenv('PGHOST'),
+#     'PORT': os.getenv('PGPORT', 5432),
+#     'OPTIONS': {
+#       'sslmode': 'require',
+#     },
+#   }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -135,4 +154,14 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOWED_ORIGIN_ALLOW_ALL = True
+
+AWS_ACCESS_KEY_ID = os.getenv('AWSS3_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWSS3_SECRET')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_SIGNATURE_NAME = 's3v4',
+AWS_S3_REGION_NAME = 'ap-southeast-2'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL =  None
+AWS_S3_VERITY = True
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
