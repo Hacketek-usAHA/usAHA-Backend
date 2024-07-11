@@ -31,7 +31,7 @@ class FacilityBookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility_Booking
         fields = ["uuid", "facility", "booker", "start_date", "end_date", "duration", "notes", "is_approved", "is_paid"]
-        extra_kwargs = {"id": {"read_only": True}, "duration": {"read_only": True}, "is_approved": {"read_only": True},  "is_paid": {"read_only": True}}
+        extra_kwargs = {"uuid": {"read_only": True}, "duration": {"read_only": True}, "is_approved": {"read_only": True},  "is_paid": {"read_only": True}}
 
     def validate(self, data):
         instance = Facility_Booking(**data)

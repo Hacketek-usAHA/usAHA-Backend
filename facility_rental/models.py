@@ -71,7 +71,7 @@ class Facility_Booking(models.Model):
                 facility=self.facility,
                 end_date__gte=self.start_date,
                 start_date__lte=self.end_date
-            ).exclude(id=self.id)
+            ).exclude(uuid=self.uuid)
             if overlapping_bookings.exists():
                 raise ValidationError("There is already a booking for the specified date range.")
 
