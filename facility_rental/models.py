@@ -9,6 +9,14 @@ class Facility(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="facilities")
     name = models.CharField(max_length=100)
+    CATEGORY_CHOICES = [
+        ('kitchen', 'Kitchen'),
+        ('workshop', 'Workshop'),
+        ('art studio', 'Art Studio'),
+        ('others', 'Others'),
+    ]
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='others')
+
     description = models.TextField(max_length=500)
     city = models.CharField(max_length=50)
     location_link = models.TextField(max_length=500)
@@ -27,23 +35,6 @@ class Facility(models.Model):
         self.amenities.all().delete()
         super().delete(*args, **kwargs)
     
-{
-    "owner": "1dc79cf8-f75b-46d9-afd3-6ec801ba3d09",
-    "name": "Dapur Bersama",
-    "description": "Dapur bersama untuk bisnis kuliner",
-    "city": "Jakarta Timur",
-    "location_link": "Jl. Raya Condet, Jakarta Timur",
-    "price_per_day": 100000,
-    "amenities": [
-        {
-            "name": "oven",
-        },
-        {
-            "name": "stove",
-        }
-    ]
-}
-    
 class Facility_Image(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     facility = models.ForeignKey(Facility, related_name='images', on_delete=models.CASCADE)
@@ -57,10 +48,6 @@ class Amenity(models.Model):
 
     class Meta:
         unique_together = (('facility_id', 'name'),)
-
-{
-    "name": "oven",
-}
 
 class Facility_Booking(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -97,12 +84,3 @@ class Facility_Booking(models.Model):
 
     def __str__(self):
         return f"Booking by {self.booker} for facility {self.facility} from {self.start_date} to {self.end_date}"
-
-
-{
-    "facility": "11fe80d1-0039-43bb-b5fa-2c3581291ade",
-    "booker": "4584d30c-516d-4264-b88f-65ad74b5d917",
-    "start_date": "2024-07-21",
-    "end_date": "2024-07-21",
-    "notes": "Lorem ipsum"
-}

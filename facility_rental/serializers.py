@@ -12,14 +12,20 @@ class FacilityImageSerializer(serializers.ModelSerializer):
         fields = ["uuid", "facility", "image", "is_primary"]
 
 class FacilitySerializer(serializers.ModelSerializer):
-    # amenities= serializers.SerializerMethodField()
+    owner_username = serializers.SerializerMethodField()
+    amenities = serializers.SerializerMethodField()
     images = FacilityImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Facility
-        fields = ['uuid', 'owner', 'name', 'description', 'city', 'location_link', 'price_per_day', 'created_at', 'updated_at', 'amenities', 'images']
+        fields = ['uuid', 'owner', 'owner_username', 'name', 'category', 'description', 'city', 'location_link', 'price_per_day', 'created_at', 'updated_at', 'amenities', 'images']
         extra_kwargs = {"created_at": {"read_only": True}, "updated_at": {"read_only": True}}
 
+    def get_owner_username(self, obj):
+        return obj.owner.username
+
+    def get_amenities(self, obj):
+        return [amenity.name for amenity in obj.amenities.all()]
     
 class FacilityBookingSerializer(serializers.ModelSerializer):
     class Meta:

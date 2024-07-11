@@ -73,17 +73,10 @@ class FacilityDetailAPIView(APIView):
         facility.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-class FacilitiesListAPIView(APIView):
+class FacilitiesListAPIView(generics.ListAPIView):
     permission_classes = [AllowAny]
-
-    def get(self, request, query=None, format=None):
-        if query is None or query.strip() == "":
-            facilities = Facility.objects.all()
-        else:
-            facilities = Facility.objects.filter(name__icontains=query)
-        
-        serializer = FacilitySerializer(facilities, many=True)
-        return Response(serializer.data)
+    queryset = Facility.objects.all()
+    serializer_class = FacilitySerializer
 
 class CreateAmenityAPIView(APIView):
     permission_classes = [AllowAny]
