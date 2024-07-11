@@ -1,6 +1,6 @@
 import json
 from rest_framework import generics, status
-from django.views.decorators.csrf import csrf_exempt
+from django_filters import rest_framework as filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -15,10 +15,10 @@ class CreateFacilityAPIView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        user = CustomUser.objects.get(id=data.get('owner'))
+        owner = CustomUser.objects.get(id=data.get('owner'))
 
         new_facility = Facility.objects.create(
-            owner=user,
+            owner=owner,
             name=data.get("name"),
             description=data.get("description"),
             city=data.get("city"),
@@ -72,13 +72,24 @@ class FacilityDetailAPIView(APIView):
         facility = Facility.objects.get(pk=pk)
         facility.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
+class FacilityFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    category = filters.CharFilter(field_name='category', lookup_expr='icontains')
+    owner = filters.CharFilter(field_name='owner__id', lookup_expr='exact')
+
+    class Meta:
+        model = Facility
+        fields = ['name', 'category', 'owner']
+
 class FacilitiesListAPIView(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = FacilityFilter
 
-class CreateAmenityAPIView(APIView):
+class AddAmenityAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -93,3 +104,28 @@ class CreateAmenityAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class CreateFacilityBookingAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = FacilityBookingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class FacilityBookingFilter(filters.FilterSet):
+    facility = filters.CharFilter(field_name='facility__uuid', lookup_expr='exact')
+    booker = filters.CharFilter(field_name='booker__id', lookup_expr='exact')
+
+    class Meta:
+        model = Facility_Booking
+        fields = ['facility', 'booker']
+
+class FacilityBookingsListAPIView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = Facility_Booking.objects.all()
+    serializer_class = FacilityBookingSerializer
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = FacilityBookingFilter

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'authentication',
+    'django_filters',
     'user_profile',
     'facility_rental',
 ]
