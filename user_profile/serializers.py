@@ -7,7 +7,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'bio', 'contact_number', 'profile_pic']
+        fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'contact_number', 'profile_pic']
 
     def create(self, validated_data):
         user = self.context.get('user')

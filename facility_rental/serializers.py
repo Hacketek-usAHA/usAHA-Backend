@@ -47,3 +47,8 @@ class FacilityBookingSerializer(serializers.ModelSerializer):
         if value is None:
             raise serializers.ValidationError("Duration must be provided.")
         return value
+    
+class FacilityBookingUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Facility_Booking
+        fields = ['facility', 'booker', 'notes', 'is_approved', 'is_paid']
