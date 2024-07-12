@@ -83,30 +83,30 @@ WSGI_APPLICATION = 'usAHA_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#   'default': {
-#     'ENGINE': 'django.db.backends.postgresql',
-#     'NAME': os.getenv('PGDATABASE'),
-#     'USER': os.getenv('PGUSER'),
-#     'PASSWORD': os.getenv('PGPASSWORD'),
-#     'HOST': os.getenv('PGHOST'),
-#     'PORT': os.getenv('PGPORT', 5432),
-#     'OPTIONS': {
-#       'sslmode': 'require',
-#     },
-#   }
-# }
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': os.getenv('DB_PORT'),
-    }
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': os.getenv('PGDATABASE'),
+    'USER': os.getenv('PGUSER'),
+    'PASSWORD': os.getenv('PGPASSWORD'),
+    'HOST': os.getenv('PGHOST'),
+    'PORT': os.getenv('PGPORT', 5432),
+    'OPTIONS': {
+      'sslmode': 'require',
+    },
+  }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': 'localhost',
+#         'PORT': os.getenv('DB_PORT'),
+#     }
+# }
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
