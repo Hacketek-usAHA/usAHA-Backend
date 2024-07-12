@@ -29,11 +29,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-}
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -156,6 +151,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 AWS_ACCESS_KEY_ID = os.getenv('AWSS3_KEY')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWSS3_SECRET')

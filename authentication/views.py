@@ -1,14 +1,14 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import CustomUserSerializer
-from .models import CustomUser
 from user_profile.models import Profile
 from user_profile.serializers import ProfileSerializer
+import jwt, datetime
 
 User = get_user_model()
 
@@ -32,17 +32,80 @@ class CreateUserAPIView(APIView):
 
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         
-{
-    "username": "Najmi",
-    "email": "najmibriliant@gmail.com",
-    "password": "password",
-    "first_name": "Najmi",
-    "last_name": "Briliant",
-    "bio": "FASILKOM 22",
-    "contact_number": "123456789"
-}
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data['username']
+        password = request.data['password']
+
+        user = User.objects.filter(username=username).first()
+
+        if user is None:
+            raise AuthenticationFailed('Incorrect password!')
+        
+        if not user.check_password(password):
+            raise AuthenticationFailed('Incorrect password!')
+        
+        payload = {
+            'id': str(user.id),
+            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60),
+            'iat': datetime.datetime.now(datetime.timezone.utc)
+        }
+
+        token = jwt.encode(payload, 'secret', algorithm='HS256')
+        response = Response()
+        response.set_cookie(key='jwt', value=token, httponly=True)
+        response.data = {
+            'jwt': token
+        }
+        return response
+    
+class LogoutAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        response = Response()
+        response.delete_cookie('jwt')
+        response.data = {
+            'message': 'Logout successful'
+        }
+        return response
+    
+class UserAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated!')
+        
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated')
+        
+        user = User.objects.filter(id=payload['id']).first()
+        profile = Profile.objects.filter(user=user).first()
+
+        if user is None or profile is None:
+            raise AuthenticationFailed('User or profile not found!')
+
+        user_serializer = CustomUserSerializer(user)
+        profile_serializer = ProfileSerializer(profile)
+
+        user_profile = {**user_serializer.data, **profile_serializer.data}
+
+        return Response(user_profile)
         
 class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]
+
+
+
+
+
+

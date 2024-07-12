@@ -12,13 +12,3 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-    
-{
-    "username": "user1",
-    "password": "password",
-    "email": "1111@gmail.com",
-    "first_name": "User",
-    "last_name": "Satu",
-    "bio": "Just a bio",
-    "contact_number": "11111111"
-}
