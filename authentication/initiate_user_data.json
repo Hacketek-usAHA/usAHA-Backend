@@ -1,0 +1,92 @@
+[
+    {
+        "username": "User1",
+        "email": "user1@gmail.com",
+        "password": "password1",
+        "first_name": "User",
+        "last_name": "One",
+        "bio": "First User in this application",
+        "contact_number": "1111111111"
+    },
+    {
+        "username": "User2",
+        "email": "user2@gmail.com",
+        "password": "password2",
+        "first_name": "User",
+        "last_name": "Two",
+        "bio": "Second User in this application",
+        "contact_number": "2222222222"
+    },
+    {
+        "username": "User3",
+        "email": "user3@gmail.com",
+        "password": "password3",
+        "first_name": "User",
+        "last_name": "Three",
+        "bio": "Third User in this application",
+        "contact_number": "3333333333"
+    },
+    {
+        "username": "User4",
+        "email": "user4@gmail.com",
+        "password": "password4",
+        "first_name": "User",
+        "last_name": "Four",
+        "bio": "Fourth User in this application",
+        "contact_number": "4444444444"
+    },
+    {
+        "username": "User5",
+        "email": "user5@gmail.com",
+        "password": "password5",
+        "first_name": "User",
+        "last_name": "Five",
+        "bio": "Fifth User in this application",
+        "contact_number": "5555555555"
+    },
+    {
+        "username": "User6",
+        "email": "user6@gmail.com",
+        "password": "password6",
+        "first_name": "User",
+        "last_name": "Six",
+        "bio": "Sixth User in this application",
+        "contact_number": "6666666666"
+    },
+    {
+        "username": "User7",
+        "email": "user7@gmail.com",
+        "password": "password7",
+        "first_name": "User",
+        "last_name": "Seven",
+        "bio": "Seventh User in this application",
+        "contact_number": "7777777777"
+    },
+    {
+        "username": "User8",
+        "email": "user8@gmail.com",
+        "password": "password8",
+        "first_name": "User",
+        "last_name": "Eight",
+        "bio": "Eighth User in this application",
+        "contact_number": "8888888888"
+    },
+    {
+        "username": "User9",
+        "email": "user9@gmail.com",
+        "password": "password9",
+        "first_name": "User",
+        "last_name": "Nine",
+        "bio": "Ninth User in this application",
+        "contact_number": "9999999999"
+    },
+    {
+        "username": "User10",
+        "email": "user10@gmail.com",
+        "password": "password10",
+        "first_name": "User",
+        "last_name": "Ten",
+        "bio": "Tenth User in this application",
+        "contact_number": "1010101010"
+    }
+]

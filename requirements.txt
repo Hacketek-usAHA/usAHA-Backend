@@ -9,3 +9,6 @@ sqlparse
 psycopg2-binary
 python-dotenv
 boto3
+django-storages
+django-filter
+Pillow
