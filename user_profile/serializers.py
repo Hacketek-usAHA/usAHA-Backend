@@ -4,8 +4,7 @@ from .models import Profile
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['user','first_name', 'last_name', 'bio', 'contact_number']
-        extra_kwargs = {'user': {'read_only': True}}
+        fields = ['first_name', 'last_name', 'bio', 'contact_number']
 
     def create(self, validated_data):
         user = self.context.get('user')
