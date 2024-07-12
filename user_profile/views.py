@@ -11,12 +11,10 @@ class ProfileFilter(filters.FilterSet):
 
     class Meta:
         model = Profile
-        fields = ['user__id']
+        fields = ['user']
 
 class ProfileListAPIView(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    filter_backends = [filters.DjangoFilterBackend]
     filterset_class = ProfileFilter
-

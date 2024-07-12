@@ -11,5 +11,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context.get('user')
+
+        if not user:
+            raise serializers.ValidationError('User is required')
+        
+        validated_data.pop('user', None)
+        
         profile = Profile.objects.create(user=user, **validated_data)
         return profile

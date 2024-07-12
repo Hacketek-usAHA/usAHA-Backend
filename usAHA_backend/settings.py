@@ -27,6 +27,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 # Application definition
@@ -154,6 +155,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_WHITELIST = 'http://localhost:3000',
 
 AWS_ACCESS_KEY_ID = os.getenv('AWSS3_KEY')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWSS3_SECRET')
