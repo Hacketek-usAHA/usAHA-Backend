@@ -12,3 +12,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+    
+class CreateUserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "password", "email", "date_joined",
+                  'first_name', 'last_name', 'bio', 'contact_number', 'profile_pic']
+        extra_kwargs = {"id": {"read_only": True}, "password": {"write_only": True}, "date_joined": {"read_only": True}}

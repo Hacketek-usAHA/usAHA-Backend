@@ -98,6 +98,52 @@ class UserAPIView(APIView):
         user_profile = {**user_serializer.data, **profile_serializer.data}
 
         return Response(user_profile)
+    
+    def put(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated!')
+        
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated')
+        
+        user = User.objects.filter(id=payload['id']).first()
+        profile = Profile.objects.filter(user=user).first()
+
+        if user is None or profile is None:
+            raise AuthenticationFailed('User or profile not found!')
+
+        user_data = {
+            "username": request.data.get("username"),
+            "email": request.data.get("email"),
+        }
+
+        profile_data = {
+            "first_name": request.data.get("first_name"),
+            "last_name": request.data.get("last_name"),
+            "bio": request.data.get("bio"),
+            "contact_number": request.data.get("contact_number"),
+            "profile_pic": request.data.get("profile_pic"),
+        }
+
+        user_serializer = CustomUserSerializer(user, data=user_data, partial=True)
+        profile_serializer = ProfileSerializer(profile, data=profile_data, partial=True)
+
+        if user_serializer.is_valid() and profile_serializer.is_valid():
+            user_serializer.save()
+            profile_serializer.save()
+
+            user_profile = {**user_serializer.data, **profile_serializer.data}
+            return Response(user_profile)
+
+        errors = {**user_serializer.errors, **profile_serializer.errors}
+        return Response(errors, status=400)
+
+    def patch(self, request):
+        return self.put(request)
         
 class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
