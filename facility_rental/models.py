@@ -58,6 +58,7 @@ class Facility_Booking(models.Model):
     notes = models.TextField(blank=True, null=True)
     is_approved = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def duration(self):
