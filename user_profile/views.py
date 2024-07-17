@@ -19,30 +19,17 @@ class ProfileFilter(filters.FilterSet):
         fields = ['user']
 
 class ProfileListAPIView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     filterset_class = ProfileFilter
 
 class EditProfilePicAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def put(self, request, format=None):
-        token = request.COOKIES.get('jwt')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated!')
-        
-        try:
-            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated')
-        
-        user = User.objects.filter(id=payload['id']).first()
+        user = request.user
         profile = Profile.objects.filter(user=user).first()
-
-        if user is None or profile is None:
-            raise AuthenticationFailed('User or profile not found!')
         
         serializer = ProfilePicSerializer(profile, data=request.data)
         if serializer.is_valid():

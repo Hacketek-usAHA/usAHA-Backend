@@ -1,10 +1,11 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.db import transaction
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import permission_classes
 from .serializers import CustomUserSerializer
 from user_profile.models import Profile
 from user_profile.serializers import ProfileSerializer
@@ -39,17 +40,16 @@ class LoginAPIView(APIView):
         username = request.data['username']
         password = request.data['password']
 
-        user = User.objects.filter(username=username).first()
+        user = authenticate(request, username=username, password=password)
 
         if user is None:
-            raise AuthenticationFailed('Incorrect password!')
-        
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password!')
+            raise AuthenticationFailed('Invalid credentials!')
+
+        login(request, user)
         
         payload = {
             'id': str(user.id),
-            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60),
+            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30),
             'iat': datetime.datetime.now(datetime.timezone.utc)
         }
 
@@ -59,62 +59,38 @@ class LoginAPIView(APIView):
         response.data = {
             'jwt': token
         }
+        print(self.request.user)
         return response
     
 class LogoutAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        logout(request)
         response = Response()
         response.delete_cookie('jwt')
         response.data = {
             'message': 'Logout successful'
         }
+        print(self.request.user)
         return response
     
 class UserAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        token = request.COOKIES.get('jwt')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated!')
-        
-        try:
-            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated')
-        
-        user = User.objects.filter(id=payload['id']).first()
+        user = request.user
         profile = Profile.objects.filter(user=user).first()
-
-        if user is None or profile is None:
-            raise AuthenticationFailed('User or profile not found!')
 
         user_serializer = CustomUserSerializer(user)
         profile_serializer = ProfileSerializer(profile)
 
         user_profile = {**user_serializer.data, **profile_serializer.data}
-
         return Response(user_profile)
     
     def put(self, request):
-        token = request.COOKIES.get('jwt')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated!')
-        
-        try:
-            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated')
-        
-        user = User.objects.filter(id=payload['id']).first()
+        user = request.user
         profile = Profile.objects.filter(user=user).first()
-
-        if user is None or profile is None:
-            raise AuthenticationFailed('User or profile not found!')
 
         user_data = {
             "username": request.data.get("username"),
@@ -148,7 +124,7 @@ class UserAPIView(APIView):
 class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 
