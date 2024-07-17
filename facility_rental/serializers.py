@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Facility, Facility_Image, Facility_Booking, Amenity
+from .models import *
 
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,8 +21,9 @@ class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
         fields = ['uuid', 'owner', 'owner_username', 'name', 'category', 'description', 
-                  'city', 'location_link', 'price_per_day', 'created_at', 'updated_at', 'amenities', 'images']
-        extra_kwargs = {"owner": {"read_only": True}, "created_at": {"read_only": True}, "updated_at": {"read_only": True}}
+                  'city', 'location_link', 'price_per_day', 'rating','created_at', 'updated_at', 'amenities', 'images']
+        extra_kwargs = {"owner": {"read_only": True}, "rating": {"read_only": True},
+                        "created_at": {"read_only": True}, "updated_at": {"read_only": True}}
 
     def get_owner_username(self, obj):
         return obj.owner.username
@@ -77,4 +78,26 @@ class FacilityBookingUpdateSerializer(serializers.ModelSerializer):
                   "duration", "notes", "is_approved", "is_paid"]
         extra_kwargs = {"uuid": {"read_only": True}, "facility": {"read_only": True}, 
                         "booker": {"read_only": True}, "start_date": {"read_only": True}, 
-                        "end_date": {"read_only": True}, "duration": {"read_only": True}, }
+                        "end_date": {"read_only": True}, "duration": {"read_only": True}}
+        
+class FacilityReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityReview
+        fields = ["id", "user", "booking", "facility", "rating", 
+                  "content", "created_at", "updated_at"]
+        extra_kwargs = {"id": {"read_only": True}, "user": {"read_only": True}, 
+                        "created_at": {"read_only": True}, "updated_at": {"read_only": True}}
+        
+    def create(self, validated_data):
+        user = self.context.get('user')
+        review = FacilityReview.objects.create(user=user, **validated_data)
+        return review
+    
+class FacilityReviewUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityReview
+        fields = ["id", "user", "booking", "facility", "rating", 
+                  "content", "created_at", "updated_at"]
+        extra_kwargs = {"id": {"read_only": True}, "user": {"read_only": True}, 
+                        "booking": {"read_only": True}, "facility": {"read_only": True}, 
+                        "created_at": {"read_only": True}, "updated_at": {"read_only": True}}

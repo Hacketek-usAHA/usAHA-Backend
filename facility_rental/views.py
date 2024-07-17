@@ -5,8 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Facility, Amenity, Facility_Booking, Facility_Image
-from authentication.models import CustomUser
+from .models import *
 from .serializers import *
 
 class CreateFacilityAPIView(generics.CreateAPIView):
@@ -188,7 +187,6 @@ class CreateFacilityBookingAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        booker = request.user.id
         serializer = FacilityBookingSerializer(data=request.data, context={'booker': request.user})
         if serializer.is_valid():
             serializer.save()
@@ -239,3 +237,59 @@ class BookingDetailAPIView(APIView):
             return Response({"message": "Booking has been deleted"}, status=status.HTTP_204_NO_CONTENT)
         except Facility_Booking.DoesNotExist:
             return Response({"message": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+class CreateFacilityReviewAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = FacilityReviewSerializer(data=request.data, context={'user': request.user})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class FacilityReviewDetailAPIView(APIView):
+    @permission_classes([AllowAny])
+    def get(self, request, pk, format=None):
+        try:
+            review = FacilityReview.objects.get(pk=pk)
+            serializer = FacilityReviewSerializer(review)
+            return Response(serializer.data)
+        except FacilityReview.DoesNotExist:
+            return Response({"message": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    @permission_classes([IsAuthenticated])
+    def put(self, request, pk, format=None):
+        try:
+            review = FacilityReview.objects.get(pk=pk)
+            serializer = FacilityReviewUpdateSerializer(review, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except FacilityReview.DoesNotExist:
+            return Response({"message": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    @permission_classes([IsAuthenticated])    
+    def delete(self, request, pk, format=None):
+        try:
+            review = FacilityReview.objects.get(pk=pk)
+            review.delete()
+            return Response({"message": "Review has been deleted"}, status=status.HTTP_204_NO_CONTENT)
+        except FacilityReview.DoesNotExist:
+            return Response({"message": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+class FacilityReviewFilter(filters.FilterSet):
+    facility = filters.CharFilter(field_name='facility__uuid', lookup_expr='exact')
+    user = filters.CharFilter(field_name='user__id', lookup_expr='exact')
+
+    class Meta:
+        model = FacilityReview
+        fields = ['facility__uuid', 'user__id']
+
+class FacilityReviewsListAPIView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = FacilityReview.objects.all()
+    serializer_class = FacilityReviewSerializer
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = FacilityReviewFilter
