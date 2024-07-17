@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'user_profile',
     'facility_rental',
     'tool_marketplace',
+    'payment',
 ]
 
 MIDDLEWARE = [
