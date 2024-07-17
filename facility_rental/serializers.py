@@ -22,7 +22,7 @@ class FacilitySerializer(serializers.ModelSerializer):
         model = Facility
         fields = ['uuid', 'owner', 'owner_username', 'name', 'category', 'description', 
                   'city', 'location_link', 'price_per_day', 'created_at', 'updated_at', 'amenities', 'images']
-        extra_kwargs = {"created_at": {"read_only": True}, "updated_at": {"read_only": True}}
+        extra_kwargs = {"owner": {"read_only": True}, "created_at": {"read_only": True}, "updated_at": {"read_only": True}}
 
     def get_owner_username(self, obj):
         return obj.owner.username
@@ -47,7 +47,8 @@ class FacilityBookingSerializer(serializers.ModelSerializer):
         model = Facility_Booking
         fields = ["uuid", "facility", "booker", "start_date", "end_date", 
                   "duration", "notes", "is_approved", "is_paid"]
-        extra_kwargs = {"uuid": {"read_only": True}, "duration": {"read_only": True},}
+        extra_kwargs = {"uuid": {"read_only": True}, "booker": {"read_only": True}, 
+                        "duration": {"read_only": True}}
 
     def validate(self, data):
         instance = Facility_Booking(**data)
@@ -63,6 +64,11 @@ class FacilityBookingSerializer(serializers.ModelSerializer):
         if value is None:
             raise serializers.ValidationError("Duration must be provided.")
         return value
+    
+    def create(self, validated_data):
+        booker = self.context.get('booker')
+        booking = Facility_Booking.objects.create(booker=booker, **validated_data)
+        return booking
     
 class FacilityBookingUpdateSerializer(serializers.ModelSerializer):
     class Meta:

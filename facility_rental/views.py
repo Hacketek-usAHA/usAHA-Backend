@@ -3,22 +3,22 @@ from rest_framework import generics, status
 from django_filters import rest_framework as filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Facility, Amenity, Facility_Booking, Facility_Image
 from authentication.models import CustomUser
 from .serializers import *
 
 class CreateFacilityAPIView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = FacilitySerializer
     queryset = Facility.objects.all()
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        owner = CustomUser.objects.get(id=data.get('owner'))
 
         new_facility = Facility.objects.create(
-            owner=owner,
+            owner=request.user,
             name=data.get("name"),
             description=data.get("description"),
             city=data.get("city"),
@@ -50,8 +50,8 @@ class CreateFacilityAPIView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class FacilityDetailAPIView(APIView):
-    permission_classes = [AllowAny]
 
+    @permission_classes([AllowAny])
     def get(self, request, pk, format=None):
         try:
             facility = Facility.objects.get(pk=pk)
@@ -60,6 +60,7 @@ class FacilityDetailAPIView(APIView):
         except Facility.DoesNotExist:
             return Response({"message": "Facility not found"}, status=status.HTTP_404_NOT_FOUND)
     
+    @permission_classes([IsAuthenticated])
     def put(self, request, pk, format=None):
         try:
             facility = Facility.objects.get(pk=pk)
@@ -71,6 +72,7 @@ class FacilityDetailAPIView(APIView):
         except Facility.DoesNotExist:
             return Response({"message": "Facility not found"}, status=status.HTTP_404_NOT_FOUND)
 
+    @permission_classes([IsAuthenticated])
     def delete(self, request, pk, format=None):
         try:
             facility = Facility.objects.get(pk=pk)
@@ -96,7 +98,7 @@ class FacilitiesListAPIView(generics.ListAPIView):
     filterset_class = FacilityFilter
 
 class AddAmenityAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -112,8 +114,8 @@ class AddAmenityAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class AmenityDetailAPIView(APIView):
-    permission_classes = [AllowAny]
 
+    @permission_classes([AllowAny])
     def get(self, request, pk, format=None):
         try:
             amenity = Amenity.objects.get(pk=pk)
@@ -122,6 +124,7 @@ class AmenityDetailAPIView(APIView):
         except Amenity.DoesNotExist:
             return Response({"message": "Amenity not found"}, status=status.HTTP_404_NOT_FOUND)
     
+    @permission_classes([IsAuthenticated])
     def put(self, request, pk, format=None):
         try:
             amenity = Amenity.objects.get(pk=pk)
@@ -133,6 +136,7 @@ class AmenityDetailAPIView(APIView):
         except Amenity.DoesNotExist:
             return Response({"message": "Amenity not found"}, status=status.HTTP_404_NOT_FOUND)
 
+    @permission_classes([IsAuthenticated])
     def delete(self, request, pk, format=None):
         try:
             amenity = Amenity.objects.get(pk=pk)
@@ -142,7 +146,7 @@ class AmenityDetailAPIView(APIView):
             return Response({"message": "Amenity not found"}, status=status.HTTP_404_NOT_FOUND)
         
 class AddFacilityImageAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -161,8 +165,8 @@ class AddFacilityImageAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class FacilityImageDetailAPIView(APIView):
-    permission_classes = [AllowAny]
 
+    @permission_classes([AllowAny])
     def get(self, request, pk, format=None):
         try:
             image = Facility_Image.objects.get(pk=pk)
@@ -171,6 +175,7 @@ class FacilityImageDetailAPIView(APIView):
         except Facility_Image.DoesNotExist:
             return Response({"message": "Image not found"}, status=status.HTTP_404_NOT_FOUND)
 
+    @permission_classes([IsAuthenticated])
     def delete(self, request, pk, format=None):
         try:
             image = Facility_Image.objects.get(pk=pk)
@@ -180,10 +185,11 @@ class FacilityImageDetailAPIView(APIView):
             return Response({"message": "Image not found"}, status=status.HTTP_404_NOT_FOUND)
     
 class CreateFacilityBookingAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = FacilityBookingSerializer(data=request.data)
+        booker = request.user.id
+        serializer = FacilityBookingSerializer(data=request.data, context={'booker': request.user})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -198,14 +204,14 @@ class FacilityBookingFilter(filters.FilterSet):
         fields = ['facility__uuid', 'booker__id']
 
 class FacilityBookingsListAPIView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Facility_Booking.objects.all()
     serializer_class = FacilityBookingSerializer
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = FacilityBookingFilter
 
 class BookingDetailAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk, format=None):
         try:
