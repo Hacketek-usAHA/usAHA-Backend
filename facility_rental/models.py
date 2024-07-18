@@ -27,8 +27,8 @@ class Facility(models.Model):
     )
     rating = models.DecimalField(
         default=0,
-        max_digits=3,
-        decimal_places=2,
+        max_digits=2,
+        decimal_places=1,
         validators=[MinValueValidator(0, message="Rating cannot be negative."), 
                     MaxValueValidator(5, message="Rating cannot be more than five")]
     )

@@ -19,6 +19,7 @@ class CreateFacilityAPIView(generics.CreateAPIView):
         new_facility = Facility.objects.create(
             owner=request.user,
             name=data.get("name"),
+            category=data.get('category'),
             description=data.get("description"),
             city=data.get("city"),
             location_link=data.get("location_link"),

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from user_profile.models import Profile
 
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,19 +15,32 @@ class FacilityImageSerializer(serializers.ModelSerializer):
         extra_kwargs = {"uuid": {"read_only": True}}
 
 class FacilitySerializer(serializers.ModelSerializer):
-    owner_username = serializers.SerializerMethodField()
+    owner_name = serializers.SerializerMethodField()
+    owner_pfp = serializers.SerializerMethodField()
     amenities = serializers.SerializerMethodField()
     images = FacilityImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Facility
-        fields = ['uuid', 'owner', 'owner_username', 'name', 'category', 'description', 
+        fields = ['uuid', 'owner', 'owner_name', 'owner_pfp', 'name', 'category', 'description', 
                   'city', 'location_link', 'price_per_day', 'rating','created_at', 'updated_at', 'amenities', 'images']
         extra_kwargs = {"owner": {"read_only": True}, "rating": {"read_only": True},
                         "created_at": {"read_only": True}, "updated_at": {"read_only": True}}
 
-    def get_owner_username(self, obj):
-        return obj.owner.username
+    def get_owner_name(self, obj):
+        try:
+            profile = Profile.objects.get(user=obj.owner)
+            owner_name = f"{profile.first_name} {profile.last_name}"
+            return owner_name if owner_name else None
+        except Profile.DoesNotExist:
+            return None
+    
+    def get_owner_pfp(self, obj):
+        try:
+            profile = Profile.objects.get(user=obj.owner)
+            return profile.profile_pic.url if profile.profile_pic else None
+        except Profile.DoesNotExist:
+            return None
 
     def get_amenities(self, obj):
         return [amenity.name for amenity in obj.amenities.all()]

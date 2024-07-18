@@ -19,7 +19,7 @@ class ProfileFilter(filters.FilterSet):
         fields = ['user']
 
 class ProfileListAPIView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     filterset_class = ProfileFilter
