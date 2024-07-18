@@ -49,6 +49,7 @@ class FacilityBookingSerializer(serializers.ModelSerializer):
         fields = ["uuid", "facility", "booker", "start_date", "end_date", 
                   "duration", "notes", "is_approved", "is_paid"]
         extra_kwargs = {"uuid": {"read_only": True}, "booker": {"read_only": True}, 
+                        "is_paid": {"read_only": True}, "is_approved": {"read_only": True},
                         "duration": {"read_only": True}}
 
     def validate(self, data):
@@ -78,7 +79,8 @@ class FacilityBookingUpdateSerializer(serializers.ModelSerializer):
                   "duration", "notes", "is_approved", "is_paid"]
         extra_kwargs = {"uuid": {"read_only": True}, "facility": {"read_only": True}, 
                         "booker": {"read_only": True}, "start_date": {"read_only": True}, 
-                        "end_date": {"read_only": True}, "duration": {"read_only": True}}
+                        "end_date": {"read_only": True}, "duration": {"read_only": True}, 
+                        "is_paid": {"read_only": True}}
         
 class FacilityReviewSerializer(serializers.ModelSerializer):
     class Meta:

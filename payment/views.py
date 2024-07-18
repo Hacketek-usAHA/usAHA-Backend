@@ -23,7 +23,7 @@ class PaymentDetailAPIView(APIView):
 
     def get(self, request, pk, format=None):
         try:
-            review = Payment.objects.get(pk=pk)
+            review = Payment.objects.get(pk=pk, user=request.user)
             serializer = PaymentSerializer(review)
             return Response(serializer.data)
         except Payment.DoesNotExist:

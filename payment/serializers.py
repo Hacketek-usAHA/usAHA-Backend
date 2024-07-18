@@ -3,11 +3,11 @@ from .models import *
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FacilityReview
+        model = Payment
         fields = ["id", "user", "booking", 
                   "total_amount", "method", "created_at"]
         extra_kwargs = {"id": {"read_only": True}, "user": {"read_only": True}, 
-                        "created_at": {"read_only": True}}
+                        "total_amount_at": {"read_only": True}, "created_at": {"read_only": True}}
         
     def create(self, validated_data):
         user = self.context.get('user')

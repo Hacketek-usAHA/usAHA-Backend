@@ -112,7 +112,5 @@ def update_facility_rating(sender, instance, **kwargs):
     facility = instance.facility
     reviews = FacilityReview.objects.filter(facility=facility)
     average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
-    print(average_rating)
-    
     facility.rating = round(average_rating, 2) if average_rating is not None else 0
     facility.save()
