@@ -37,8 +37,8 @@ class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        username = request.data['username']
-        password = request.data['password']
+        username = request.data.get('username')
+        password = request.data.get('password')
 
         user = authenticate(request, username=username, password=password)
 
@@ -46,7 +46,11 @@ class LoginAPIView(APIView):
             raise AuthenticationFailed('Invalid credentials!')
 
         login(request, user)
-        
+
+        response = Response()
+
+        response.delete_cookie('jwt')
+
         payload = {
             'id': str(user.id),
             'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30),
@@ -54,12 +58,13 @@ class LoginAPIView(APIView):
         }
 
         token = jwt.encode(payload, 'secret', algorithm='HS256')
-        response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
+        
+        response.set_cookie(key='jwt', value=token, httponly=True, expires=payload['exp'])
+
         response.data = {
             'jwt': token
         }
-        print(self.request.user)
+        
         return response
     
 class LogoutAPIView(APIView):
