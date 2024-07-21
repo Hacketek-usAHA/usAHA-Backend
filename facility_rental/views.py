@@ -50,8 +50,11 @@ class CreateFacilityAPIView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class FacilityDetailAPIView(APIView):
-
-    @permission_classes([AllowAny])
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+    
     def get(self, request, pk, format=None):
         try:
             facility = Facility.objects.get(pk=pk)
@@ -60,7 +63,6 @@ class FacilityDetailAPIView(APIView):
         except Facility.DoesNotExist:
             return Response({"message": "Facility not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    @permission_classes([IsAuthenticated])
     def put(self, request, pk, format=None):
         try:
             facility = Facility.objects.get(pk=pk)
@@ -72,7 +74,6 @@ class FacilityDetailAPIView(APIView):
         except Facility.DoesNotExist:
             return Response({"message": "Facility not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    @permission_classes([IsAuthenticated])
     def delete(self, request, pk, format=None):
         try:
             facility = Facility.objects.get(pk=pk)
@@ -114,8 +115,11 @@ class AddAmenityAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class AmenityDetailAPIView(APIView):
-
-    @permission_classes([AllowAny])
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+    
     def get(self, request, pk, format=None):
         try:
             amenity = Amenity.objects.get(pk=pk)
@@ -124,7 +128,6 @@ class AmenityDetailAPIView(APIView):
         except Amenity.DoesNotExist:
             return Response({"message": "Amenity not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    @permission_classes([IsAuthenticated])
     def put(self, request, pk, format=None):
         try:
             amenity = Amenity.objects.get(pk=pk)
@@ -136,7 +139,6 @@ class AmenityDetailAPIView(APIView):
         except Amenity.DoesNotExist:
             return Response({"message": "Amenity not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    @permission_classes([IsAuthenticated])
     def delete(self, request, pk, format=None):
         try:
             amenity = Amenity.objects.get(pk=pk)
@@ -165,8 +167,11 @@ class AddFacilityImageAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class FacilityImageDetailAPIView(APIView):
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
-    @permission_classes([AllowAny])
     def get(self, request, pk, format=None):
         try:
             image = Facility_Image.objects.get(pk=pk)
@@ -175,7 +180,6 @@ class FacilityImageDetailAPIView(APIView):
         except Facility_Image.DoesNotExist:
             return Response({"message": "Image not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    @permission_classes([IsAuthenticated])
     def delete(self, request, pk, format=None):
         try:
             image = Facility_Image.objects.get(pk=pk)
@@ -210,7 +214,10 @@ class FacilityBookingsListAPIView(generics.ListAPIView):
     filterset_class = FacilityBookingFilter
 
 class BookingDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get(self, request, pk, format=None):
         try:
@@ -250,7 +257,11 @@ class CreateFacilityReviewAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class FacilityReviewDetailAPIView(APIView):
-    @permission_classes([AllowAny])
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+    
     def get(self, request, pk, format=None):
         try:
             review = FacilityReview.objects.get(pk=pk)
@@ -259,7 +270,6 @@ class FacilityReviewDetailAPIView(APIView):
         except FacilityReview.DoesNotExist:
             return Response({"message": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    @permission_classes([IsAuthenticated])
     def put(self, request, pk, format=None):
         try:
             review = FacilityReview.objects.get(pk=pk)
@@ -271,7 +281,6 @@ class FacilityReviewDetailAPIView(APIView):
         except FacilityReview.DoesNotExist:
             return Response({"message": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    @permission_classes([IsAuthenticated])    
     def delete(self, request, pk, format=None):
         try:
             review = FacilityReview.objects.get(pk=pk)
