@@ -58,13 +58,40 @@ class FacilityUpdateSerializer(serializers.ModelSerializer):
         return obj.owner.username
     
 class FacilityBookingSerializer(serializers.ModelSerializer):
+    user_rating = serializers.SerializerMethodField()
+    facility_name = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+    price_per_day = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
+
     class Meta:
         model = Facility_Booking
         fields = ["uuid", "facility", "booker", "start_date", "end_date", 
-                  "duration", "notes", "is_approved", "is_paid"]
+                  "duration", "notes", "is_approved", "is_paid", "user_rating", 
+                  "facility_name", "city", "price_per_day", "images"]
         extra_kwargs = {"uuid": {"read_only": True}, "booker": {"read_only": True}, 
                         "is_paid": {"read_only": True}, "is_approved": {"read_only": True},
-                        "duration": {"read_only": True}}
+                        "duration": {"read_only": True}, "user_rating": {"read_only": True},
+                        "facility_name": {"read_only": True}, "city": {"read_only": True},
+                        "price_per_day": {"read_only": True}, "images": {"read_only": True},}
+        
+    def get_user_rating(self, obj):
+        try:
+            return obj.review.rating
+        except FacilityReview.DoesNotExist:
+            return None
+    
+    def get_facility_name(self, obj):
+        return obj.facility.name
+
+    def get_city(self, obj):
+        return obj.facility.city
+    
+    def get_price_per_day(self, obj):
+        return obj.facility.price_per_day
+    
+    def get_images(self, obj):
+        return [image.image.url for image in obj.facility.images.all()]
 
     def validate(self, data):
         instance = Facility_Booking(**data)
