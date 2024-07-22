@@ -207,7 +207,7 @@ class FacilityBookingFilter(filters.FilterSet):
         fields = ['facility__uuid', 'booker__id']
 
 class FacilityBookingsListAPIView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Facility_Booking.objects.all()
     serializer_class = FacilityBookingSerializer
     filter_backends = [filters.DjangoFilterBackend]
