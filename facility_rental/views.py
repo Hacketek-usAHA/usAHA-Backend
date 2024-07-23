@@ -98,6 +98,13 @@ class FacilitiesListAPIView(generics.ListAPIView):
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = FacilityFilter
 
+class OwnerFacilitiesAPIView(generics.ListAPIView):
+    serializer_class = FacilitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Facility.objects.filter(owner=self.request.user)
+
 class AddAmenityAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -212,6 +219,13 @@ class FacilityBookingsListAPIView(generics.ListAPIView):
     serializer_class = FacilityBookingSerializer
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = FacilityBookingFilter
+
+class UserFacilityBookingsAPIView(generics.ListAPIView):
+    serializer_class = FacilityBookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Facility_Booking.objects.filter(booker=self.request.user)
 
 class BookingDetailAPIView(APIView):
     def get_permissions(self):
