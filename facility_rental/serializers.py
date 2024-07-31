@@ -18,7 +18,7 @@ class FacilitySerializer(serializers.ModelSerializer):
     owner_name = serializers.SerializerMethodField()
     owner_pfp = serializers.SerializerMethodField()
     owner_start = serializers.SerializerMethodField()
-    amenities = serializers.SerializerMethodField()
+    amenities = AmenitySerializer(many=True, read_only=True)
     images = FacilityImageSerializer(many=True, read_only=True)
 
     class Meta:
@@ -48,8 +48,6 @@ class FacilitySerializer(serializers.ModelSerializer):
         except Profile.DoesNotExist:
             return None
 
-    def get_amenities(self, obj):
-        return [amenity.name for amenity in obj.amenities.all()]
     
 class FacilityUpdateSerializer(serializers.ModelSerializer):
     owner_username = serializers.SerializerMethodField()
