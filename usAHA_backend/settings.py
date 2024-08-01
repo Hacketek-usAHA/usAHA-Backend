@@ -22,7 +22,7 @@ ALLOWED_HOSTS = ["*"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "authentication.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -41,11 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'storages',
     'authentication',
     'django_filters',
     'user_profile',
     'facility_rental',
     'tool_marketplace',
+    'payment',
 ]
 
 MIDDLEWARE = [
@@ -104,7 +106,7 @@ DATABASES = {
 #         'USER': os.getenv('DB_USER'),
 #         'PASSWORD': os.getenv('DB_PASSWORD'),
 #         'HOST': 'localhost',
-#         'PORT': os.getenv('DB_PORT'),
+#         'PORT': os.getenv('DB_PORT', 5432),
 #     }
 # }
 

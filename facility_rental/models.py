@@ -1,8 +1,10 @@
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
-import datetime
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.db.models import Avg
 import uuid
 
 class Facility(models.Model):
@@ -16,13 +18,19 @@ class Facility(models.Model):
         ('others', 'Others'),
     ]
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='others')
-
-    description = models.TextField(max_length=500)
+    description = models.TextField(max_length=500, default="")
     city = models.CharField(max_length=50)
     location_link = models.TextField(max_length=500)
     price_per_day = models.IntegerField(
         default=0,
         validators=[MinValueValidator(0, message="The price cannot be negative."),]
+    )
+    rating = models.DecimalField(
+        default=0,
+        max_digits=2,
+        decimal_places=1,
+        validators=[MinValueValidator(0, message="Rating cannot be negative."), 
+                    MaxValueValidator(5, message="Rating cannot be more than five")]
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -58,6 +66,7 @@ class Facility_Booking(models.Model):
     notes = models.TextField(blank=True, null=True)
     is_approved = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def duration(self):
@@ -84,3 +93,32 @@ class Facility_Booking(models.Model):
 
     def __str__(self):
         return f"Booking by {self.booker} for facility {self.facility} from {self.start_date} to {self.end_date}"
+    
+class FacilityReview(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews")
+    booking = models.OneToOneField(Facility_Booking, on_delete=models.CASCADE, related_name="review")
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0, message="Rating cannot be negative."), MaxValueValidator(5, message="Rating cannot be more than five")]
+    )
+    content = models.CharField(max_length=500, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+@receiver(post_save, sender=FacilityReview)
+def update_facility_rating(sender, instance, **kwargs):
+    facility = instance.facility
+    reviews = FacilityReview.objects.filter(facility=facility)
+    average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    facility.rating = round(average_rating, 2) if average_rating is not None else 0
+    facility.save()
+
+@receiver(post_delete, sender=FacilityReview)
+def update_facility_rating_on_delete(sender, instance, **kwargs):
+    facility = instance.facility
+    reviews = FacilityReview.objects.filter(facility=facility)
+    average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    facility.rating = round(average_rating, 2) if average_rating is not None else 0
+    facility.save()
