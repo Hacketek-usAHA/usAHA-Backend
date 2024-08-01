@@ -14,6 +14,43 @@ class FacilityImageSerializer(serializers.ModelSerializer):
         fields = ["uuid", "facility", "image", "is_primary"]
         extra_kwargs = {"uuid": {"read_only": True}}
 
+class CreateFacilitySerializer(serializers.ModelSerializer):
+    owner_name = serializers.SerializerMethodField()
+    owner_pfp = serializers.SerializerMethodField()
+    owner_start = serializers.SerializerMethodField()
+    amenities = serializers.SerializerMethodField()
+    images = FacilityImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Facility
+        fields = ['uuid', 'owner', 'owner_name', 'owner_pfp', 
+                  'owner_start', 'name', 'category', 'description', 
+                  'city', 'location_link', 'price_per_day', 'rating',
+                  'created_at', 'updated_at', 'amenities', 'images']
+        extra_kwargs = {"owner": {"read_only": True}, "rating": {"read_only": True},
+                        "created_at": {"read_only": True}, "updated_at": {"read_only": True}}
+
+    def get_owner_name(self, obj):
+        try:
+            profile = Profile.objects.get(user=obj.owner)
+            owner_name = f"{profile.first_name} {profile.last_name}"
+            return owner_name if owner_name else None
+        except Profile.DoesNotExist:
+            return None
+        
+    def get_owner_start(self, obj):
+        return obj.owner.date_joined
+    
+    def get_owner_pfp(self, obj):
+        try:
+            profile = Profile.objects.get(user=obj.owner)
+            return profile.profile_pic.url if profile.profile_pic else None
+        except Profile.DoesNotExist:
+            return None
+
+    def get_amenities(self, obj):
+        return [amenity.name for amenity in obj.amenities.all()]
+
 class FacilitySerializer(serializers.ModelSerializer):
     owner_name = serializers.SerializerMethodField()
     owner_pfp = serializers.SerializerMethodField()
@@ -129,9 +166,15 @@ class FacilityBookingUpdateSerializer(serializers.ModelSerializer):
                         "is_paid": {"read_only": True}}
         
 class FacilityReviewSerializer(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField()
+    user_pfp = serializers.SerializerMethodField()
+    user_start = serializers.SerializerMethodField()
+    facility_name = serializers.SerializerMethodField()
+
     class Meta:
         model = FacilityReview
-        fields = ["id", "user", "booking", "facility", "rating", 
+        fields = ["id", "user", "user_name", "user_pfp", "user_start", 
+                  "booking", "facility", "facility_name", "rating", 
                   "content", "created_at", "updated_at"]
         extra_kwargs = {"id": {"read_only": True}, "user": {"read_only": True}, 
                         "created_at": {"read_only": True}, "updated_at": {"read_only": True}}
@@ -140,6 +183,27 @@ class FacilityReviewSerializer(serializers.ModelSerializer):
         user = self.context.get('user')
         review = FacilityReview.objects.create(user=user, **validated_data)
         return review
+    
+    def get_user_name(self, obj):
+        try:
+            profile = Profile.objects.get(user=obj.user)
+            user_name = f"{profile.first_name} {profile.last_name}"
+            return user_name if user_name else None
+        except Profile.DoesNotExist:
+            return None
+        
+    def get_user_start(self, obj):
+        return obj.user.date_joined
+    
+    def get_user_pfp(self, obj):
+        try:
+            profile = Profile.objects.get(user=obj.user)
+            return profile.profile_pic.url if profile.profile_pic else None
+        except Profile.DoesNotExist:
+            return None
+    
+    def get_facility_name(self, obj):
+        return obj.facility.name
     
 class FacilityReviewUpdateSerializer(serializers.ModelSerializer):
     class Meta:

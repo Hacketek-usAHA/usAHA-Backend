@@ -10,7 +10,7 @@ from .serializers import *
 
 class CreateFacilityAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = FacilitySerializer
+    serializer_class = CreateFacilitySerializer
     queryset = Facility.objects.all()
 
     def create(self, request, *args, **kwargs):

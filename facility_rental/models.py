@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db.models import Avg
 import uuid
@@ -109,6 +109,14 @@ class FacilityReview(models.Model):
 
 @receiver(post_save, sender=FacilityReview)
 def update_facility_rating(sender, instance, **kwargs):
+    facility = instance.facility
+    reviews = FacilityReview.objects.filter(facility=facility)
+    average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    facility.rating = round(average_rating, 2) if average_rating is not None else 0
+    facility.save()
+
+@receiver(post_delete, sender=FacilityReview)
+def update_facility_rating_on_delete(sender, instance, **kwargs):
     facility = instance.facility
     reviews = FacilityReview.objects.filter(facility=facility)
     average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
