@@ -52,9 +52,8 @@ class LoginAPIView(APIView):
         response.delete_cookie(
             'jwt',
             path='/',
-            domain='localhost',
             samesite='None',
-            secure=True
+            secure=False
         )
 
         payload = {
@@ -82,9 +81,8 @@ class LogoutAPIView(APIView):
         response.delete_cookie(
             'jwt',
             path='/',
-            domain='localhost',
             samesite='None',
-            secure=True
+            secure=False
         )
         response.data = {
             'message': 'Logout successful'
